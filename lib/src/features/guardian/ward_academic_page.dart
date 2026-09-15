@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+
 import '../../core/auth/auth_api.dart';
+import '../../core/auth/auth_models.dart';
 import 'academic_report_models.dart';
 
 class WardAcademicPage extends StatefulWidget {
   const WardAcademicPage({super.key, required this.ward});
 
-  final dynamic ward;
+  final WardView ward;
 
   @override
   State<WardAcademicPage> createState() => _WardAcademicPageState();
@@ -18,11 +20,11 @@ class _WardAcademicPageState extends State<WardAcademicPage> {
   @override
   void initState() {
     super.initState();
-    _report = _api.currentAcademicReport(widget.ward.id as String);
+    _report = _api.currentAcademicReport(widget.ward.id);
   }
 
   void _retry() {
-    setState(() => _report = _api.currentAcademicReport(widget.ward.id as String));
+    setState(() => _report = _api.currentAcademicReport(widget.ward.id));
   }
 
   @override
