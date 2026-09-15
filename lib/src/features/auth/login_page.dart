@@ -22,8 +22,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   Future<void> _submit() async {
+    final identifier = _identifierController.text.trim();
+    if (identifier.isEmpty || _passwordController.text.isEmpty) return;
+
     await ref.read(authControllerProvider.notifier).signIn(
-          identifier: _identifierController.text,
+          identifier: identifier,
           password: _passwordController.text,
         );
   }
@@ -70,9 +73,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     ),
                     const SizedBox(height: 20),
                     FilledButton(
-                      onPressed: isLoading || _identifierController.text.trim().isEmpty
-                          ? null
-                          : _submit,
+                      onPressed: isLoading ? null : _submit,
                       child: Text(isLoading ? 'Signing in…' : 'Sign in'),
                     ),
                     if (auth.hasError) ...[
