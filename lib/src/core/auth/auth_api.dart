@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../features/guardian/academic_report_models.dart';
 import '../../features/guardian/announcement_models.dart';
+import '../../features/guardian/attendance_models.dart';
 import '../../features/guardian/guardian_profile_models.dart';
 import '../../features/guardian/invoice_models.dart';
 import '../../features/guardian/receipt_models.dart';
@@ -92,6 +93,11 @@ class AuthApi {
   Future<List<AnnouncementView>> announcements() async { final response = await _authorizedGet('/announcements'); return (response.data as List<dynamic>).map((item) => AnnouncementView.fromJson(item as Map<String, dynamic>)).toList(growable: false); }
   Future<List<StationeryItemView>> stationeryCatalog() async { final response = await _authorizedGet('/stationery/catalog'); return (response.data as List<dynamic>).map((item) => StationeryItemView.fromJson(item as Map<String, dynamic>)).toList(growable: false); }
   Future<AcademicReportView> currentAcademicReport(String studentId) async { final response = await _authorizedGet('/academic-reports/students/$studentId/current'); return AcademicReportView.fromJson(response.data as Map<String, dynamic>); }
+  Future<AttendanceSummaryView> studentAttendance(String studentId, {String? termId}) async {
+    final path = '/attendance/students/$studentId${termId == null ? '' : '?termId=${Uri.encodeQueryComponent(termId)}'}';
+    final response = await _authorizedGet(path);
+    return AttendanceSummaryView.fromJson(response.data as Map<String, dynamic>);
+  }
   Future<List<InvoiceView>> studentInvoices(String studentId) async { final response = await _authorizedGet('/finance/students/$studentId/invoices'); return (response.data as List<dynamic>).map((item) => InvoiceView.fromJson(item as Map<String, dynamic>)).toList(growable: false); }
   Future<List<ReceiptView>> studentReceipts(String studentId) async { final response = await _authorizedGet('/finance/students/$studentId/receipts'); return (response.data as List<dynamic>).map((item) => ReceiptView.fromJson(item as Map<String, dynamic>)).toList(growable: false); }
   Future<WalletStatementView> studentWallet(String studentId) async { final response = await _authorizedGet('/wallets/students/$studentId'); return WalletStatementView.fromJson(response.data as Map<String, dynamic>); }
