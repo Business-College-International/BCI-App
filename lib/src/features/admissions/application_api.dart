@@ -1,27 +1,21 @@
 import 'package:dio/dio.dart';
 
-class ApplicationSummary {
-  const ApplicationSummary({
-    required this.id,
-    required this.firstName,
-    required this.lastName,
+class ApplicationStatusView {
+  const ApplicationStatusView({
+    required this.trackingCode,
     required this.levelApplied,
     required this.programmeApplied,
     required this.status,
   });
 
-  final String id;
-  final String firstName;
-  final String lastName;
+  final String trackingCode;
   final String levelApplied;
   final String programmeApplied;
   final String status;
 
-  factory ApplicationSummary.fromJson(Map<String, dynamic> json) {
-    return ApplicationSummary(
-      id: json['id'] as String,
-      firstName: json['firstName'] as String,
-      lastName: json['lastName'] as String,
+  factory ApplicationStatusView.fromJson(Map<String, dynamic> json) {
+    return ApplicationStatusView(
+      trackingCode: json['trackingCode'] as String,
       levelApplied: json['levelApplied'] as String,
       programmeApplied: json['programmeApplied'] as String,
       status: json['status'] as String,
@@ -45,10 +39,10 @@ class ApplicationApi {
 
   final Dio _dio;
 
-  Future<ApplicationSummary> getStatus(String id) async {
+  Future<ApplicationStatusView> getStatus(String trackingCode) async {
     final response = await _dio.get<Map<String, dynamic>>(
-      '/applications/$id/status',
+      '/applications/track/$trackingCode',
     );
-    return ApplicationSummary.fromJson(response.data!);
+    return ApplicationStatusView.fromJson(response.data!);
   }
 }
