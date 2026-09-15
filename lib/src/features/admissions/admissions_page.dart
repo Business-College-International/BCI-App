@@ -12,7 +12,7 @@ class AdmissionsPage extends StatefulWidget {
 class _AdmissionsPageState extends State<AdmissionsPage> {
   final _controller = TextEditingController();
   final _api = ApplicationApi();
-  ApplicationSummary? _application;
+  ApplicationStatusView? _application;
   bool _loading = false;
   String? _error;
 
@@ -23,8 +23,8 @@ class _AdmissionsPageState extends State<AdmissionsPage> {
   }
 
   Future<void> _checkStatus() async {
-    final id = _controller.text.trim();
-    if (id.isEmpty) return;
+    final trackingCode = _controller.text.trim();
+    if (trackingCode.isEmpty) return;
 
     setState(() {
       _loading = true;
@@ -32,7 +32,7 @@ class _AdmissionsPageState extends State<AdmissionsPage> {
     });
 
     try {
-      final application = await _api.getStatus(id);
+      final application = await _api.getStatus(trackingCode);
       if (!mounted) return;
       setState(() => _application = application);
     } catch (_) {
@@ -53,18 +53,15 @@ class _AdmissionsPageState extends State<AdmissionsPage> {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Text(
-            'Admissions',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
+          Text('Admissions', style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: 8),
-          const Text('Check an application using the ID returned by BCI.'),
+          const Text('Check an application using the tracking code returned by BCI.'),
           const SizedBox(height: 20),
           TextField(
             controller: _controller,
             textInputAction: TextInputAction.done,
             decoration: const InputDecoration(
-              labelText: 'Application ID',
+              labelText: 'Application tracking code',
               border: OutlineInputBorder(),
             ),
             onSubmitted: (_) => _checkStatus(),
@@ -76,7 +73,10 @@ class _AdmissionsPageState extends State<AdmissionsPage> {
           ),
           if (_error != null) ...[
             const SizedBox(height: 20),
-            Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+            Text(
+              _error!,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
           ],
           if (_application != null) ...[
             const SizedBox(height: 24),
@@ -87,7 +87,7 @@ class _AdmissionsPageState extends State<AdmissionsPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${_application!.firstName} ${_application!.lastName}',
+                      'Application ${_application!.trackingCode}',
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 8),
