@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/auth/auth_api.dart';
 import '../../core/auth/auth_models.dart';
 import 'academic_report_models.dart';
+import 'attendance_models.dart';
 
 class WardAcademicPage extends StatefulWidget {
   const WardAcademicPage({super.key, required this.ward});
@@ -16,15 +17,20 @@ class WardAcademicPage extends StatefulWidget {
 class _WardAcademicPageState extends State<WardAcademicPage> {
   final _api = AuthApi();
   late Future<AcademicReportView> _report;
+  late Future<AttendanceSummaryView> _attendance;
 
   @override
   void initState() {
     super.initState();
     _report = _api.currentAcademicReport(widget.ward.id);
+    _attendance = _api.studentAttendance(widget.ward.id);
   }
 
   void _retry() {
-    setState(() => _report = _api.currentAcademicReport(widget.ward.id));
+    setState(() {
+      _report = _api.currentAcademicReport(widget.ward.id);
+      _attendance = _api.studentAttendance(widget.ward.id);
+    });
   }
 
   @override
@@ -33,11 +39,11 @@ class _WardAcademicPageState extends State<WardAcademicPage> {
       appBar: AppBar(title: Text('${widget.ward.firstName} ${widget.ward.lastName} · Academic')),
       body: FutureBuilder<AcademicReportView>(
         future: _report,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
+        builder: (context, reportSnapshot) {
+          if (reportSnapshot.connectionState != ConnectionState.done) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (snapshot.hasError) {
+          if (reportSnapshot.hasError) {
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
@@ -53,7 +59,7 @@ class _WardAcademicPageState extends State<WardAcademicPage> {
             );
           }
 
-          final report = snapshot.data!;
+          final report = reportSnapshot.data!;
           final percentage = report.calculation.overallPercentage;
 
           return ListView(
@@ -84,6 +90,43 @@ class _WardAcademicPageState extends State<WardAcademicPage> {
                     ],
                   ),
                 ),
+              ),
+              const SizedBox(height: 16),
+              FutureBuilder<AttendanceSummaryView>(
+                future: _attendance,
+                builder: (context, attendanceSnapshot) {
+                  if (attendanceSnapshot.connectionState != ConnectionState.done) {
+                    return const Card(child: ListTile(title: Text('Attendance'), trailing: CircularProgressIndicator()));
+                  }
+                  if (attendanceSnapshot.hasError) {
+                    return const Card(child: ListTile(title: Text('Attendance'), subtitle: Text('Attendance details are unavailable.')));
+                  }
+
+                  final attendance = attendanceSnapshot.data!;
+                  final rate = attendance.attendanceRate;
+                  final risk = attendance.total >= 5 && attendance.absenceRate >= 20;
+                  return Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(18),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Expanded(child: Text('Attendance', style: TextStyle(fontWeight: FontWeight.bold))),
+                              if (risk) const Chip(label: Text('Monitor attendance')),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Text(rate == null ? 'No attendance records yet' : '${rate.toStringAsFixed(1)}% attendance', style: Theme.of(context).textTheme.headlineSmall),
+                          const SizedBox(height: 6),
+                          Text('Present: ${attendance.present} · Late: ${attendance.late} · Absent: ${attendance.absent} · Excused: ${attendance.excused}'),
+                          if (risk) const Padding(padding: EdgeInsets.only(top: 8), child: Text('Absence is at or above 20% of marked sessions.')),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 16),
               Text('Subjects', style: Theme.of(context).textTheme.titleLarge),
