@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/auth/auth_controller.dart';
 import 'ward_academic_page.dart';
 import 'ward_finance_page.dart';
+import 'ward_wallet_page.dart';
 
 class GuardianHomePage extends ConsumerWidget {
   const GuardianHomePage({super.key});
@@ -131,6 +132,14 @@ class GuardianHomePage extends ConsumerWidget {
                                     ),
                                     icon: const Icon(Icons.receipt_long_outlined),
                                     label: const Text('View fees'),
+                                  ),
+                                if (ward.canManageWallet)
+                                  OutlinedButton.icon(
+                                    onPressed: () => Navigator.of(context).push(
+                                      MaterialPageRoute(builder: (_) => WardWalletPage(ward: ward)),
+                                    ),
+                                    icon: const Icon(Icons.account_balance_wallet_outlined),
+                                    label: const Text('View wallet'),
                                   ),
                               ],
                             ),
