@@ -6,6 +6,7 @@ import '../../features/guardian/announcement_models.dart';
 import '../../features/guardian/invoice_models.dart';
 import '../../features/guardian/receipt_models.dart';
 import '../../features/guardian/wallet_models.dart';
+import '../../features/notifications/notification_models.dart';
 import '../../features/staff/staff_models.dart';
 import '../../features/stationery_store/stationery_models.dart';
 import 'auth_models.dart';
@@ -50,6 +51,20 @@ class AuthApi {
     return (response.data as List<dynamic>).map((item) => WardView.fromJson(item as Map<String, dynamic>)).toList(growable: false);
   }
 
+  Future<List<NotificationView>> notifications({String? status}) async {
+    final response = await _authorizedGet('/notifications/me${status == null ? '' : '?status=${Uri.encodeQueryComponent(status)}'}');
+    return (response.data as List<dynamic>).map((item) => NotificationView.fromJson(item as Map<String, dynamic>)).toList(growable: false);
+  }
+
+  Future<void> markNotificationRead(String id) async {
+    await _authorizedPatch('/notifications/$id/read');
+  }
+
+  Future<int> markAllNotificationsRead() async {
+    final response = await _authorizedPost('/notifications/me/read-all');
+    return (response.data as Map<String, dynamic>)['updatedCount'] as int? ?? 0;
+  }
+
   Future<List<AnnouncementView>> announcements() async {
     final response = await _authorizedGet('/announcements');
     return (response.data as List<dynamic>).map((item) => AnnouncementView.fromJson(item as Map<String, dynamic>)).toList(growable: false);
@@ -78,6 +93,14 @@ class AuthApi {
       await _refresh();
       return _dio.get<dynamic>(path, options: Options(headers: {'Authorization': 'Bearer ${await _accessToken()}'}));
     }
+  }
+
+  Future<Response<dynamic>> _authorizedPatch(String path) async {
+    return _dio.patch<dynamic>(path, options: Options(headers: {'Authorization': 'Bearer ${await _accessToken()}'}));
+  }
+
+  Future<Response<dynamic>> _authorizedPost(String path) async {
+    return _dio.post<dynamic>(path, options: Options(headers: {'Authorization': 'Bearer ${await _accessToken()}'}));
   }
 
   Future<String> _accessToken() async { final token = await _storage.read(key: _accessKey); if (token == null || token.isEmpty) throw StateError('No BCI access token is available.'); return token; }
