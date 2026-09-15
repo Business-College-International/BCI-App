@@ -4,7 +4,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../features/guardian/academic_report_models.dart';
 import '../../features/guardian/announcement_models.dart';
 import '../../features/guardian/invoice_models.dart';
+import '../../features/guardian/receipt_models.dart';
 import '../../features/guardian/wallet_models.dart';
+import '../../features/stationery_store/stationery_models.dart';
 import 'auth_models.dart';
 
 class AuthApi {
@@ -49,6 +51,7 @@ class AuthApi {
 
   Future<AcademicReportView> currentAcademicReport(String studentId) async { final response = await _authorizedGet('/academic-reports/students/$studentId/current'); return AcademicReportView.fromJson(response.data as Map<String, dynamic>); }
   Future<List<InvoiceView>> studentInvoices(String studentId) async { final response = await _authorizedGet('/finance/students/$studentId/invoices'); return (response.data as List<dynamic>).map((item) => InvoiceView.fromJson(item as Map<String, dynamic>)).toList(growable: false); }
+  Future<List<ReceiptView>> studentReceipts(String studentId) async { final response = await _authorizedGet('/finance/students/$studentId/receipts'); return (response.data as List<dynamic>).map((item) => ReceiptView.fromJson(item as Map<String, dynamic>)).toList(growable: false); }
   Future<WalletStatementView> studentWallet(String studentId) async { final response = await _authorizedGet('/wallets/students/$studentId'); return WalletStatementView.fromJson(response.data as Map<String, dynamic>); }
 
   Future<void> logout() async {
