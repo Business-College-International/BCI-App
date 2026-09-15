@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../features/guardian/academic_report_models.dart';
+import '../../features/guardian/invoice_models.dart';
 import 'auth_models.dart';
 
 class AuthApi {
@@ -51,6 +52,14 @@ class AuthApi {
   Future<AcademicReportView> currentAcademicReport(String studentId) async {
     final response = await _authorizedGet('/academic-reports/students/$studentId/current');
     return AcademicReportView.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<List<InvoiceView>> studentInvoices(String studentId) async {
+    final response = await _authorizedGet('/finance/students/$studentId/invoices');
+    final data = response.data as List<dynamic>;
+    return data
+        .map((item) => InvoiceView.fromJson(item as Map<String, dynamic>))
+        .toList(growable: false);
   }
 
   Future<void> logout() async {
