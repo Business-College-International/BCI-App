@@ -8,6 +8,7 @@ import '../../features/guardian/invoice_models.dart';
 import '../../features/guardian/receipt_models.dart';
 import '../../features/guardian/wallet_models.dart';
 import '../../features/notifications/notification_models.dart';
+import '../../features/security/security_models.dart';
 import '../../features/staff/staff_models.dart';
 import '../../features/stationery_store/stationery_models.dart';
 import 'auth_models.dart';
@@ -37,6 +38,24 @@ class AuthApi {
     return CurrentUser.fromJson(response.data as Map<String, dynamic>);
   }
 
+  Future<List<SecuritySession>> securitySessions() async {
+    final response = await _authorizedGet('/auth/sessions');
+    return (response.data as List<dynamic>).map((item) => SecuritySession.fromJson(item as Map<String, dynamic>)).toList(growable: false);
+  }
+
+  Future<void> changePassword({required String currentPassword, required String newPassword}) async {
+    await _authorizedPostWithBody('/auth/change-password', {'currentPassword': currentPassword, 'newPassword': newPassword});
+    await _clearTokens();
+  }
+
+  Future<void> revokeSession(String id) async { await _authorizedPostWithBody('/auth/revoke-session', {'sessionId': id}); }
+
+  Future<int> revokeAllSessions() async {
+    final response = await _authorizedPost('/auth/revoke-all-sessions');
+    final count = (response.data as Map<String, dynamic>)['revokedCount'];
+    return count is int ? count : 0;
+  }
+
   Future<StaffWorkspaceView> staffWorkspace() async {
     final response = await _authorizedGet('/staff/me');
     return StaffWorkspaceView.fromJson(response.data as Map<String, dynamic>);
@@ -52,26 +71,8 @@ class AuthApi {
     return GuardianProfileView.fromJson(response.data as Map<String, dynamic>);
   }
 
-  Future<GuardianProfileView> updateGuardianProfile({
-    required String firstName,
-    required String lastName,
-    String? address,
-    String? occupation,
-    String? hometown,
-    String? region,
-    required bool preferredSms,
-    required bool preferredPush,
-  }) async {
-    final response = await _authorizedPatchWithBody('/guardians/me/profile', {
-      'firstName': firstName,
-      'lastName': lastName,
-      'address': address,
-      'occupation': occupation,
-      'hometown': hometown,
-      'region': region,
-      'preferredSms': preferredSms,
-      'preferredPush': preferredPush,
-    });
+  Future<GuardianProfileView> updateGuardianProfile({required String firstName, required String lastName, String? address, String? occupation, String? hometown, String? region, required bool preferredSms, required bool preferredPush}) async {
+    final response = await _authorizedPatchWithBody('/guardians/me/profile', {'firstName': firstName, 'lastName': lastName, 'address': address, 'occupation': occupation, 'hometown': hometown, 'region': region, 'preferredSms': preferredSms, 'preferredPush': preferredPush});
     return GuardianProfileView.fromJson(response.data as Map<String, dynamic>);
   }
 
@@ -88,16 +89,8 @@ class AuthApi {
   Future<void> markNotificationRead(String id) async { await _authorizedPatch('/notifications/$id/read'); }
   Future<int> markAllNotificationsRead() async { final response = await _authorizedPost('/notifications/me/read-all'); return (response.data as Map<String, dynamic>)['updatedCount'] as int? ?? 0; }
 
-  Future<List<AnnouncementView>> announcements() async {
-    final response = await _authorizedGet('/announcements');
-    return (response.data as List<dynamic>).map((item) => AnnouncementView.fromJson(item as Map<String, dynamic>)).toList(growable: false);
-  }
-
-  Future<List<StationeryItemView>> stationeryCatalog() async {
-    final response = await _authorizedGet('/stationery/catalog');
-    return (response.data as List<dynamic>).map((item) => StationeryItemView.fromJson(item as Map<String, dynamic>)).toList(growable: false);
-  }
-
+  Future<List<AnnouncementView>> announcements() async { final response = await _authorizedGet('/announcements'); return (response.data as List<dynamic>).map((item) => AnnouncementView.fromJson(item as Map<String, dynamic>)).toList(growable: false); }
+  Future<List<StationeryItemView>> stationeryCatalog() async { final response = await _authorizedGet('/stationery/catalog'); return (response.data as List<dynamic>).map((item) => StationeryItemView.fromJson(item as Map<String, dynamic>)).toList(growable: false); }
   Future<AcademicReportView> currentAcademicReport(String studentId) async { final response = await _authorizedGet('/academic-reports/students/$studentId/current'); return AcademicReportView.fromJson(response.data as Map<String, dynamic>); }
   Future<List<InvoiceView>> studentInvoices(String studentId) async { final response = await _authorizedGet('/finance/students/$studentId/invoices'); return (response.data as List<dynamic>).map((item) => InvoiceView.fromJson(item as Map<String, dynamic>)).toList(growable: false); }
   Future<List<ReceiptView>> studentReceipts(String studentId) async { final response = await _authorizedGet('/finance/students/$studentId/receipts'); return (response.data as List<dynamic>).map((item) => ReceiptView.fromJson(item as Map<String, dynamic>)).toList(growable: false); }
@@ -119,19 +112,11 @@ class AuthApi {
   }
 
   Future<Response<dynamic>> _authorizedPatch(String path) async { return _dio.patch<dynamic>(path, options: Options(headers: {'Authorization': 'Bearer ${await _accessToken()}'})); }
-
   Future<Response<dynamic>> _authorizedPatchWithBody(String path, Map<String, dynamic> data) async { return _dio.patch<dynamic>(path, data: data, options: Options(headers: {'Authorization': 'Bearer ${await _accessToken()}'})); }
-
   Future<Response<dynamic>> _authorizedPost(String path) async { return _dio.post<dynamic>(path, options: Options(headers: {'Authorization': 'Bearer ${await _accessToken()}'})); }
+  Future<Response<dynamic>> _authorizedPostWithBody(String path, Map<String, dynamic> data) async { return _dio.post<dynamic>(path, data: data, options: Options(headers: {'Authorization': 'Bearer ${await _accessToken()}'})); }
   Future<String> _accessToken() async { final token = await _storage.read(key: _accessKey); if (token == null || token.isEmpty) throw StateError('No BCI access token is available.'); return token; }
-
-  Future<void> _refresh() async {
-    final refreshToken = await _storage.read(key: _refreshKey);
-    if (refreshToken == null || refreshToken.isEmpty) { await _clearTokens(); throw DioException(requestOptions: RequestOptions(path: '/auth/refresh'), error: 'No refresh token is available.'); }
-    final response = await _dio.post<Map<String, dynamic>>('/auth/refresh', data: {'refreshToken': refreshToken});
-    await _saveTokens(AuthTokens.fromJson(response.data!));
-  }
-
+  Future<void> _refresh() async { final refreshToken = await _storage.read(key: _refreshKey); if (refreshToken == null || refreshToken.isEmpty) { await _clearTokens(); throw DioException(requestOptions: RequestOptions(path: '/auth/refresh'), error: 'No refresh token is available.'); } final response = await _dio.post<Map<String, dynamic>>('/auth/refresh', data: {'refreshToken': refreshToken}); await _saveTokens(AuthTokens.fromJson(response.data!)); }
   Future<void> _saveTokens(AuthTokens tokens) async { await Future.wait([_storage.write(key: _accessKey, value: tokens.accessToken), _storage.write(key: _refreshKey, value: tokens.refreshToken)]); }
   Future<void> _clearTokens() async { await Future.wait([_storage.delete(key: _accessKey), _storage.delete(key: _refreshKey)]); }
 }
