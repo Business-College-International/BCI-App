@@ -6,6 +6,7 @@ import '../../features/guardian/announcement_models.dart';
 import '../../features/guardian/invoice_models.dart';
 import '../../features/guardian/receipt_models.dart';
 import '../../features/guardian/wallet_models.dart';
+import '../../features/staff/staff_models.dart';
 import '../../features/stationery_store/stationery_models.dart';
 import 'auth_models.dart';
 
@@ -32,6 +33,16 @@ class AuthApi {
   Future<CurrentUser> currentUser() async {
     final response = await _authorizedGet('/auth/me');
     return CurrentUser.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<StaffWorkspaceView> staffWorkspace() async {
+    final response = await _authorizedGet('/staff/me');
+    return StaffWorkspaceView.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<MyPayrollView> myPayroll() async {
+    final response = await _authorizedGet('/payroll/me');
+    return MyPayrollView.fromJson(response.data as Map<String, dynamic>);
   }
 
   Future<List<WardView>> wards() async {
