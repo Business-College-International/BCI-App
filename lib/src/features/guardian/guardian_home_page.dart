@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth/auth_controller.dart';
 import '../notifications/notifications_page.dart';
+import '../security/security_api.dart';
+import '../security/security_page.dart';
 import 'guardian_announcements_page.dart';
 import 'guardian_profile_page.dart';
 import 'guardian_stationery_page.dart';
@@ -24,6 +26,7 @@ class GuardianHomePage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('BCI Guardian Portal'),
         actions: [
+          IconButton(tooltip: 'Account security', onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => SecurityPage(api: SecurityApi(api), authApi: api))), icon: const Icon(Icons.shield_outlined)),
           IconButton(tooltip: 'My profile', onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GuardianProfilePage())), icon: const Icon(Icons.person_outline)),
           IconButton(tooltip: 'Notifications', onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => NotificationsPage(api: api))), icon: const Icon(Icons.notifications_outlined)),
           IconButton(tooltip: 'Announcements', onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GuardianAnnouncementsPage())), icon: const Icon(Icons.campaign_outlined)),
