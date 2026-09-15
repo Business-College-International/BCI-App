@@ -36,12 +36,13 @@ class AuthApi {
 
   Future<CurrentUser> currentUser() async {
     final response = await _authorizedGet('/auth/me');
-    return CurrentUser.fromJson(response.data!);
+    return CurrentUser.fromJson(response.data as Map<String, dynamic>);
   }
 
   Future<List<WardView>> wards() async {
     final response = await _authorizedGet('/students/me/wards');
-    return (response.data! as List<dynamic>)
+    final data = response.data as List<dynamic>;
+    return data
         .map((item) => WardView.fromJson(item as Map<String, dynamic>))
         .toList(growable: false);
   }
@@ -57,9 +58,9 @@ class AuthApi {
     }
   }
 
-  Future<Response<Map<String, dynamic>>> _authorizedGet(String path) async {
+  Future<Response<dynamic>> _authorizedGet(String path) async {
     try {
-      return await _dio.get<Map<String, dynamic>>(
+      return await _dio.get<dynamic>(
         path,
         options: Options(headers: {'Authorization': 'Bearer ${await _accessToken()}'}),
       );
@@ -67,7 +68,7 @@ class AuthApi {
       if (error.response?.statusCode != 401) rethrow;
 
       await _refresh();
-      return _dio.get<Map<String, dynamic>>(
+      return _dio.get<dynamic>(
         path,
         options: Options(headers: {'Authorization': 'Bearer ${await _accessToken()}'}),
       );
