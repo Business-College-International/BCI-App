@@ -1,0 +1,25 @@
+name: bci_mobile_app
+description: BCI School Management System mobile app — for guardians, students (via guardians), and staff.
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  dio: ^5.4.0            # HTTP client for backend API
+  flutter_riverpod: ^2.5.0  # state management
+  go_router: ^14.0.0     # navigation
+  firebase_messaging: ^15.0.0  # push notifications
+  flutter_secure_storage: ^9.0.0  # store auth tokens securely
+  cached_network_image: ^3.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
