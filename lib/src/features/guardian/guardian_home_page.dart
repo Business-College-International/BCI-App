@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth/auth_controller.dart';
+import '../notifications/notifications_page.dart';
 import 'guardian_announcements_page.dart';
 import 'guardian_stationery_page.dart';
 import 'ward_academic_page.dart';
@@ -16,11 +17,13 @@ class GuardianHomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authControllerProvider).value;
     final wards = ref.watch(wardsProvider);
+    final api = ref.read(authApiProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('BCI Guardian Portal'),
         actions: [
+          IconButton(tooltip: 'Notifications', onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => NotificationsPage(api: api))), icon: const Icon(Icons.notifications_outlined)),
           IconButton(tooltip: 'Announcements', onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GuardianAnnouncementsPage())), icon: const Icon(Icons.campaign_outlined)),
           IconButton(tooltip: 'Stationery store', onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const GuardianStationeryPage())), icon: const Icon(Icons.shopping_bag_outlined)),
           IconButton(tooltip: 'Sign out', onPressed: () => ref.read(authControllerProvider.notifier).signOut(), icon: const Icon(Icons.logout)),
