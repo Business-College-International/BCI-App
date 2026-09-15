@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../core/auth/auth_api.dart';
 import 'security_api.dart';
@@ -43,7 +42,21 @@ class _SecurityPageState extends State<SecurityPage> {
             TextFormField(controller: confirmed, obscureText: true, decoration: const InputDecoration(labelText: 'Confirm new password'), validator: (v) => v != next.text ? 'Passwords do not match' : null),
           ])),
         ),
-        actions: [TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')), FilledButton(onPressed: () async { if (!(formKey.currentState?.validate() ?? false)) return; setState(() => _savingPassword = true); try { await widget.api.changePassword(currentPassword: current.text, newPassword: next.text); if (context.mounted) Navigator.pop(context, true); } catch (_) { if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password change failed.'))); } finally { if (mounted) setState(() => _savingPassword = false); } }, child: _savingPassword ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Change'))],
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          FilledButton(onPressed: () async {
+            if (!(formKey.currentState?.validate() ?? false)) return;
+            setState(() => _savingPassword = true);
+            try {
+              await widget.api.changePassword(currentPassword: current.text, newPassword: next.text);
+              if (context.mounted) Navigator.pop(context, true);
+            } catch (_) {
+              if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Password change failed.')));
+            } finally {
+              if (mounted) setState(() => _savingPassword = false);
+            }
+          }, child: _savingPassword ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Change')),
+        ],
       ),
     );
     current.dispose(); next.dispose(); confirmed.dispose();
