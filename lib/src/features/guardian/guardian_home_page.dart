@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth/auth_controller.dart';
+import 'ward_academic_page.dart';
 
 class GuardianHomePage extends ConsumerWidget {
   const GuardianHomePage({super.key});
@@ -109,6 +110,15 @@ class GuardianHomePage extends ConsumerWidget {
                                 ),
                               ],
                             ),
+                            const SizedBox(height: 14),
+                            if (ward.canViewAcademic)
+                              OutlinedButton.icon(
+                                onPressed: () => Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => WardAcademicPage(ward: ward)),
+                                ),
+                                icon: const Icon(Icons.school_outlined),
+                                label: const Text('View academic results'),
+                              ),
                           ],
                         ),
                       ),
