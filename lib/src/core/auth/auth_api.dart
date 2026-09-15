@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../features/guardian/academic_report_models.dart';
 import '../../features/guardian/announcement_models.dart';
+import '../../features/guardian/guardian_profile_models.dart';
 import '../../features/guardian/invoice_models.dart';
 import '../../features/guardian/receipt_models.dart';
 import '../../features/guardian/wallet_models.dart';
@@ -46,6 +47,34 @@ class AuthApi {
     return MyPayrollView.fromJson(response.data as Map<String, dynamic>);
   }
 
+  Future<GuardianProfileView> guardianProfile() async {
+    final response = await _authorizedGet('/guardians/me/profile');
+    return GuardianProfileView.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<GuardianProfileView> updateGuardianProfile({
+    required String firstName,
+    required String lastName,
+    String? address,
+    String? occupation,
+    String? hometown,
+    String? region,
+    required bool preferredSms,
+    required bool preferredPush,
+  }) async {
+    final response = await _authorizedPatchWithBody('/guardians/me/profile', {
+      'firstName': firstName,
+      'lastName': lastName,
+      'address': address,
+      'occupation': occupation,
+      'hometown': hometown,
+      'region': region,
+      'preferredSms': preferredSms,
+      'preferredPush': preferredPush,
+    });
+    return GuardianProfileView.fromJson(response.data as Map<String, dynamic>);
+  }
+
   Future<List<WardView>> wards() async {
     final response = await _authorizedGet('/students/me/wards');
     return (response.data as List<dynamic>).map((item) => WardView.fromJson(item as Map<String, dynamic>)).toList(growable: false);
@@ -56,14 +85,8 @@ class AuthApi {
     return (response.data as List<dynamic>).map((item) => NotificationView.fromJson(item as Map<String, dynamic>)).toList(growable: false);
   }
 
-  Future<void> markNotificationRead(String id) async {
-    await _authorizedPatch('/notifications/$id/read');
-  }
-
-  Future<int> markAllNotificationsRead() async {
-    final response = await _authorizedPost('/notifications/me/read-all');
-    return (response.data as Map<String, dynamic>)['updatedCount'] as int? ?? 0;
-  }
+  Future<void> markNotificationRead(String id) async { await _authorizedPatch('/notifications/$id/read'); }
+  Future<int> markAllNotificationsRead() async { final response = await _authorizedPost('/notifications/me/read-all'); return (response.data as Map<String, dynamic>)['updatedCount'] as int? ?? 0; }
 
   Future<List<AnnouncementView>> announcements() async {
     final response = await _authorizedGet('/announcements');
@@ -95,14 +118,11 @@ class AuthApi {
     }
   }
 
-  Future<Response<dynamic>> _authorizedPatch(String path) async {
-    return _dio.patch<dynamic>(path, options: Options(headers: {'Authorization': 'Bearer ${await _accessToken()}'}));
-  }
+  Future<Response<dynamic>> _authorizedPatch(String path) async { return _dio.patch<dynamic>(path, options: Options(headers: {'Authorization': 'Bearer ${await _accessToken()}'})); }
 
-  Future<Response<dynamic>> _authorizedPost(String path) async {
-    return _dio.post<dynamic>(path, options: Options(headers: {'Authorization': 'Bearer ${await _accessToken()}'}));
-  }
+  Future<Response<dynamic>> _authorizedPatchWithBody(String path, Map<String, dynamic> data) async { return _dio.patch<dynamic>(path, data: data, options: Options(headers: {'Authorization': 'Bearer ${await _accessToken()}'})); }
 
+  Future<Response<dynamic>> _authorizedPost(String path) async { return _dio.post<dynamic>(path, options: Options(headers: {'Authorization': 'Bearer ${await _accessToken()}'})); }
   Future<String> _accessToken() async { final token = await _storage.read(key: _accessKey); if (token == null || token.isEmpty) throw StateError('No BCI access token is available.'); return token; }
 
   Future<void> _refresh() async {
