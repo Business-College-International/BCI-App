@@ -6,6 +6,7 @@ import 'guardian_announcements_page.dart';
 import 'guardian_stationery_page.dart';
 import 'ward_academic_page.dart';
 import 'ward_finance_page.dart';
+import 'ward_receipts_page.dart';
 import 'ward_wallet_page.dart';
 
 class GuardianHomePage extends ConsumerWidget {
@@ -54,7 +55,10 @@ class GuardianHomePage extends ConsumerWidget {
                       const SizedBox(height: 14),
                       Wrap(spacing: 10, runSpacing: 10, children: [
                         if (ward.canViewAcademic) OutlinedButton.icon(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => WardAcademicPage(ward: ward))), icon: const Icon(Icons.school_outlined), label: const Text('Academic results')),
-                        if (ward.canPayFees) OutlinedButton.icon(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => WardFinancePage(ward: ward))), icon: const Icon(Icons.receipt_long_outlined), label: const Text('Fees')),
+                        if (ward.canPayFees) ...[
+                          OutlinedButton.icon(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => WardFinancePage(ward: ward))), icon: const Icon(Icons.receipt_long_outlined), label: const Text('Fees')),
+                          OutlinedButton.icon(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => WardReceiptsPage(ward: ward))), icon: const Icon(Icons.history_outlined), label: const Text('Payment history')),
+                        ],
                         if (ward.canManageWallet) OutlinedButton.icon(onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => WardWalletPage(ward: ward))), icon: const Icon(Icons.account_balance_wallet_outlined), label: const Text('Wallet')),
                       ]),
                     ]),
