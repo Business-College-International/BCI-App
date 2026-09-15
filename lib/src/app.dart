@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/auth/auth_controller.dart';
 import 'features/auth/login_page.dart';
 import 'features/guardian/guardian_home_page.dart';
+import 'features/staff/staff_home_page.dart';
 
 class BciApp extends ConsumerWidget {
   const BciApp({super.key});
@@ -24,6 +25,7 @@ class BciApp extends ConsumerWidget {
         data: (user) {
           if (user == null) return const LoginPage();
           if (user.isGuardian) return const GuardianHomePage();
+          if (user.isStaff) return const StaffHomePage();
           return const _UnsupportedRolePage();
         },
       ),
