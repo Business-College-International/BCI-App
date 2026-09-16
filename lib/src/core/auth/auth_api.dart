@@ -6,6 +6,7 @@ import '../../features/guardian/announcement_models.dart';
 import '../../features/guardian/attendance_models.dart';
 import '../../features/guardian/guardian_profile_models.dart';
 import '../../features/guardian/invoice_models.dart';
+import '../../features/guardian/payment_preflight_models.dart';
 import '../../features/guardian/receipt_models.dart';
 import '../../features/guardian/wallet_models.dart';
 import '../../features/notifications/notification_models.dart';
@@ -101,6 +102,13 @@ class AuthApi {
   Future<List<InvoiceView>> studentInvoices(String studentId) async { final response = await _authorizedGet('/finance/students/$studentId/invoices'); return (response.data as List<dynamic>).map((item) => InvoiceView.fromJson(item as Map<String, dynamic>)).toList(growable: false); }
   Future<List<ReceiptView>> studentReceipts(String studentId) async { final response = await _authorizedGet('/finance/students/$studentId/receipts'); return (response.data as List<dynamic>).map((item) => ReceiptView.fromJson(item as Map<String, dynamic>)).toList(growable: false); }
   Future<WalletStatementView> studentWallet(String studentId) async { final response = await _authorizedGet('/wallets/students/$studentId'); return WalletStatementView.fromJson(response.data as Map<String, dynamic>); }
+  Future<PaymentPreflightView> paymentPreflight(String studentId, List<String> invoiceIds, {String? amount}) async {
+    final response = await _authorizedPostWithBody('/finance/students/$studentId/payment-preflight', {
+      'invoiceIds': invoiceIds,
+      if (amount != null) 'amount': amount,
+    });
+    return PaymentPreflightView.fromJson(response.data as Map<String, dynamic>);
+  }
 
   Future<void> logout() async {
     final refreshToken = await _storage.read(key: _refreshKey);
