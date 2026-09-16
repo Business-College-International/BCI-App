@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/auth/auth_api.dart';
 import '../../core/auth/auth_models.dart';
 import 'invoice_models.dart';
+import 'payment_review_page.dart';
 
 class WardFinancePage extends StatefulWidget {
   const WardFinancePage({super.key, required this.ward});
@@ -58,6 +59,9 @@ class _WardFinancePageState extends State<WardFinancePage> {
             0,
             (sum, invoice) => sum + (double.tryParse(invoice.outstandingAmount) ?? 0),
           );
+          final payableInvoices = invoices.where((invoice) =>
+              invoice.status == 'OPEN' && (double.tryParse(invoice.outstandingAmount) ?? 0) > 0 ||
+              invoice.status == 'PARTIALLY_PAID' && (double.tryParse(invoice.outstandingAmount) ?? 0) > 0).toList(growable: false);
 
           return ListView(
             padding: const EdgeInsets.all(20),
@@ -75,7 +79,23 @@ class _WardFinancePageState extends State<WardFinancePage> {
                         style: Theme.of(context).textTheme.headlineMedium,
                       ),
                       const SizedBox(height: 6),
-                      const Text('Payments will become available after the school payment reservation and provider verification flow is enabled.'),
+                      Text(
+                        widget.ward.canPayFees
+                            ? 'Review your payment before any provider transaction is started.'
+                            : 'This guardian relationship is not permitted to make fee payments.',
+                      ),
+                      if (widget.ward.canPayFees && payableInvoices.isNotEmpty) ...[
+                        const SizedBox(height: 14),
+                        FilledButton.icon(
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (_) => PaymentReviewPage(ward: widget.ward, invoices: payableInvoices),
+                            ));
+                          },
+                          icon: const Icon(Icons.receipt_long),
+                          label: const Text('Review payment'),
+                        ),
+                      ],
                     ],
                   ),
                 ),
