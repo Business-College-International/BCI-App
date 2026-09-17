@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/theme/theme_provider.dart';
+import 'core/widgets/themed_app_backdrop.dart';
 import 'core/auth/auth_controller.dart';
 import 'features/auth/login_page.dart';
 import 'features/guardian/guardian_home_page.dart';
@@ -12,13 +14,14 @@ class BciApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final auth = ref.watch(authControllerProvider);
+    final theme = ref.watch(themeProvider);
 
     return MaterialApp(
       title: 'BCI School Management',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF15365C)),
-        useMaterial3: true,
-      ),
+      debugShowCheckedModeBanner: false,
+      theme: theme.themeData,
+      builder: (context, child) =>
+          ThemedAppBackdrop(child: child ?? const SizedBox.shrink()),
       home: auth.when(
         loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
         error: (_, __) => const LoginPage(),

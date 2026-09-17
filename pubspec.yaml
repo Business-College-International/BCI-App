@@ -15,6 +15,9 @@ dependencies:
   firebase_messaging: ^15.0.0  # push notifications
   flutter_secure_storage: ^9.0.0  # store auth tokens securely
   cached_network_image: ^3.3.0
+  shared_preferences: ^2.2.2        # theme + local preferences persistence
+  shimmer: ^3.0.0                   # skeleton loading (BciSkeleton)
+  flutter_animate: ^4.5.0          # micro-interaction layer (BciButton etc.)
 
 dev_dependencies:
   flutter_test:
@@ -23,3 +26,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Variable.ttf
+
