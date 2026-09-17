@@ -53,7 +53,7 @@ class StaffHomePage extends ConsumerWidget {
                 if (data.basePay != null) Text('Current base pay: GHS ${data.basePay}'), const SizedBox(height: 8),
                 ...data.entries.map((entry) => ListTile(contentPadding: EdgeInsets.zero, title: Text(entry.periodCode), subtitle: Text('${entry.periodStatus} · ${entry.status}'), trailing: Text('GHS ${entry.netPay}'))),
                 if (data.entries.isEmpty) const Text('No payroll entries have been issued yet.'),
-              ]))),
+              ])))),
           ],
         ),
       ),

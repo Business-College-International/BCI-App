@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/auth/auth_controller.dart';
 import 'receipt_models.dart';
-import 'ward_models.dart';
+import '../../core/auth/auth_models.dart';
 
 final wardReceiptsProvider = FutureProvider.autoDispose.family<List<ReceiptView>, String>((ref, studentId) {
   return ref.read(authApiProvider).studentReceipts(studentId);

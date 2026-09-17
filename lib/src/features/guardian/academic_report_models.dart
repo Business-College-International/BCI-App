@@ -67,14 +67,16 @@ class AcademicReportCalculation {
 }
 
 class AcademicReportSubject {
-  const AcademicReportSubject({required this.code, required this.name, required this.averagePercentage});
+  const AcademicReportSubject({required this.code, required this.name, required this.assessmentCount, required this.averagePercentage});
   final String code;
   final String name;
+  final int assessmentCount;
   final double averagePercentage;
 
   factory AcademicReportSubject.fromJson(Map<String, dynamic> json) => AcademicReportSubject(
         code: json['code'] as String,
         name: json['name'] as String,
+        assessmentCount: json['assessmentCount'] as int,
         averagePercentage: (json['averagePercentage'] as num).toDouble(),
       );
 }

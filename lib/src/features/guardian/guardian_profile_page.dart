@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/auth/auth_api.dart';
+import '../../core/auth/auth_controller.dart';
 import 'guardian_profile_models.dart';
 
 class GuardianProfilePage extends ConsumerStatefulWidget {

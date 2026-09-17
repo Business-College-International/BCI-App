@@ -13,21 +13,3 @@ class AnnouncementView {
     publishedAt: json['publishedAt'] == null ? null : DateTime.parse(json['publishedAt'] as String),
   );
 }
-
-class StationeryItemView {
-  StationeryItemView({required this.id, required this.name, required this.sku, required this.price, required this.stockQty});
-
-  final String id;
-  final String name;
-  final String sku;
-  final String price;
-  final int stockQty;
-
-  factory StationeryItemView.fromJson(Map<String, dynamic> json) => StationeryItemView(
-    id: json['id'] as String,
-    name: json['name'] as String,
-    sku: json['sku'] as String,
-    price: json['price'].toString(),
-    stockQty: (json['stockQty'] as num).toInt(),
-  );
-}
