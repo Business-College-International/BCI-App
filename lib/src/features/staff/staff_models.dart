@@ -4,20 +4,66 @@ class StaffDutyView {
   final String description;
   final DateTime? startsAt;
   final DateTime? endsAt;
-  factory StaffDutyView.fromJson(Map<String, dynamic> json) => StaffDutyView(id: json['id'] as String, description: json['description'] as String, startsAt: json['startsAt'] == null ? null : DateTime.parse(json['startsAt'] as String), endsAt: json['endsAt'] == null ? null : DateTime.parse(json['endsAt'] as String));
+  factory StaffDutyView.fromJson(Map<String, dynamic> json) => StaffDutyView(
+    id: json['id'] as String,
+    description: json['description'] as String,
+    startsAt: json['startsAt'] == null ? null : DateTime.parse(json['startsAt'] as String),
+    endsAt: json['endsAt'] == null ? null : DateTime.parse(json['endsAt'] as String),
+  );
 }
 
 class TeachingAssignmentView {
-  const TeachingAssignmentView({required this.id, required this.className, required this.subject, required this.term});
+  const TeachingAssignmentView({
+    required this.id,
+    required this.classId,
+    required this.className,
+    required this.level,
+    required this.programme,
+    required this.room,
+    required this.subjectId,
+    required this.subject,
+    required this.termId,
+    required this.term,
+    required this.termStartsAt,
+    required this.termEndsAt,
+    required this.termStatus,
+  });
+
   final String id;
+  final String classId;
   final String className;
+  final String level;
+  final String programme;
+  final String? room;
+  final String subjectId;
   final String subject;
+  final String termId;
   final String term;
+  final DateTime termStartsAt;
+  final DateTime termEndsAt;
+  final String termStatus;
+
+  bool get canMarkAttendance => termStatus == 'OPEN';
+
   factory TeachingAssignmentView.fromJson(Map<String, dynamic> json) {
     final classJson = json['class'] as Map<String, dynamic>;
     final subjectJson = json['subject'] as Map<String, dynamic>;
     final termJson = json['term'] as Map<String, dynamic>;
-    return TeachingAssignmentView(id: json['id'] as String, className: classJson['name'] as String, subject: '${subjectJson['code']} · ${subjectJson['name']}', term: termJson['name'] as String);
+    return TeachingAssignmentView(
+      id: json['id'] as String,
+      classId: classJson['id'] as String,
+      className: classJson['name'] as String,
+      level: classJson['level'] as String,
+      programme: classJson['programme'] as String,
+      room: classJson['room'] as String?,
+      subjectId: subjectJson['id'] as String,
+      subject: (subjectJson['code'] as String) + ' · ' + (subjectJson['name'] as String),
+      termId: termJson['id'] as String,
+      term: termJson['name'] as String,
+      termStartsAt: DateTime.parse(termJson['startsAt'] as String),
+      termEndsAt: DateTime.parse(termJson['endsAt'] as String),
+      termStatus: termJson['status'] as String,
+    );
   }
 }
 
