@@ -13,6 +13,7 @@ import '../../features/notifications/notification_models.dart';
 import '../../features/security/security_models.dart';
 import '../../features/staff/staff_models.dart';
 import '../../features/staff/teacher_attendance_models.dart';
+import '../../features/staff/teacher_assessment_models.dart';
 import '../../features/stationery_store/stationery_models.dart';
 import 'auth_models.dart';
 
@@ -165,6 +166,51 @@ class AuthApi {
     });
   }
 
+  Future<List<AssessmentRosterStudentView>> assessmentRoster({
+    required String classId,
+    required String termId,
+    required String subjectId,
+  }) async {
+    final response = await _authorizedGet(
+      '/assessments/roster?classId=' + Uri.encodeQueryComponent(classId) + '&termId=' + Uri.encodeQueryComponent(termId) + '&subjectId=' + Uri.encodeQueryComponent(subjectId),
+    );
+    return (response.data as List<dynamic>)
+        .map((item) => AssessmentRosterStudentView.fromJson(item as Map<String, dynamic>))
+        .toList(growable: false);
+  }
+
+  Future<CreatedAssessmentView> createAssessment({
+    required String termId,
+    required String subjectId,
+    required String title,
+    required String type,
+    required double maxScore,
+    double? weight,
+  }) async {
+    final data = <String, dynamic>{
+      'termId': termId,
+      'subjectId': subjectId,
+      'title': title.trim(),
+      'type': type,
+      'maxScore': maxScore,
+      if (weight != null) 'weight': weight,
+    };
+    final response = await _authorizedPostWithBody('/assessments', data);
+    return CreatedAssessmentView.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<List<AssessmentResultView>> enterAssessmentResults({
+    required String assessmentId,
+    required List<Map<String, dynamic>> results,
+  }) async {
+    final response = await _authorizedPostWithBody(
+      '/assessments/' + Uri.encodeComponent(assessmentId) + '/results',
+      {'results': results},
+    );
+    return (response.data as List<dynamic>)
+        .map((item) => AssessmentResultView.fromJson(item as Map<String, dynamic>))
+        .toList(growable: false);
+  }
   Future<void> logout() async {
     final refreshToken = await _storage.read(key: _refreshKey);
     try {

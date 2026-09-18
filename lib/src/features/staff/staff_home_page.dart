@@ -5,6 +5,7 @@ import '../../core/auth/auth_controller.dart';
 import '../security/security_api.dart';
 import '../security/security_page.dart';
 import 'staff_models.dart';
+import 'teacher_assessment_page.dart';
 import 'teacher_attendance_page.dart';
 
 final staffWorkspaceProvider = FutureProvider.autoDispose<StaffWorkspaceView>((ref) => ref.read(authApiProvider).staffWorkspace());
@@ -42,7 +43,7 @@ class StaffHomePage extends ConsumerWidget {
               data: (data) => Column(children: [
                 Card(child: ListTile(title: Text('Employment: ${data.employmentStatus}'), subtitle: Text('${data.department ?? 'School staff'} · ${data.staffIdNo}'))),
                 if (data.duties.isNotEmpty) Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Duties'), const SizedBox(height: 8), ...data.duties.map((duty) => ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.assignment_outlined), title: Text(duty.description), subtitle: Text('${duty.startsAt?.toLocal() ?? 'No start'} → ${duty.endsAt?.toLocal() ?? 'Open'}')))]))),
-                if (data.teaching.isNotEmpty) Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Teaching assignments'), const SizedBox(height: 8), ...data.teaching.map((assignment) => ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.school_outlined), title: Text(assignment.className), subtitle: Text('${assignment.subject} · ${assignment.term}'), trailing: assignment.canMarkAttendance ? const Icon(Icons.fact_check_outlined) : const Chip(label: Text('Closed')), onTap: assignment.canMarkAttendance ? () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => TeacherAttendancePage(assignment: assignment))) : null))]))),
+                if (data.teaching.isNotEmpty) Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Teaching assignments'), const SizedBox(height: 8), ...data.teaching.map((assignment) => ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.school_outlined), title: Text(assignment.className), subtitle: Text('${assignment.subject} · ${assignment.term}'), trailing: assignment.canMarkAttendance ? Row(mainAxisSize: MainAxisSize.min, children: [IconButton(tooltip: 'Attendance', onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => TeacherAttendancePage(assignment: assignment))), icon: const Icon(Icons.fact_check_outlined)), IconButton(tooltip: 'Assessments', onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => TeacherAssessmentPage(assignment: assignment))), icon: const Icon(Icons.assignment_outlined))]) : const Chip(label: Text('Closed'))))]))),
               ]),
             ),
             const SizedBox(height: 12),
