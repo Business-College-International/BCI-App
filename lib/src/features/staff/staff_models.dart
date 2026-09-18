@@ -24,6 +24,8 @@ class TeachingAssignmentView {
     required this.subject,
     required this.termId,
     required this.term,
+    required this.termStartsAt,
+    required this.termEndsAt,
     required this.termStatus,
   });
 
@@ -37,6 +39,8 @@ class TeachingAssignmentView {
   final String subject;
   final String termId;
   final String term;
+  final DateTime termStartsAt;
+  final DateTime termEndsAt;
   final String termStatus;
 
   bool get canMarkAttendance => termStatus == 'OPEN';
@@ -56,36 +60,26 @@ class TeachingAssignmentView {
       subject: (subjectJson['code'] as String) + ' · ' + (subjectJson['name'] as String),
       termId: termJson['id'] as String,
       term: termJson['name'] as String,
+      termStartsAt: DateTime.parse(termJson['startsAt'] as String),
+      termEndsAt: DateTime.parse(termJson['endsAt'] as String),
       termStatus: termJson['status'] as String,
     );
   }
 }
 
 class StaffWorkspaceView {
-  const StaffWorkspaceView({
-    required this.staffIdNo,
-    required this.department,
-    required this.employmentStatus,
-    required this.duties,
-    required this.teaching,
-  });
-
+  const StaffWorkspaceView({required this.staffIdNo, required this.department, required this.employmentStatus, required this.duties, required this.teaching});
   final String staffIdNo;
   final String? department;
   final String employmentStatus;
   final List<StaffDutyView> duties;
   final List<TeachingAssignmentView> teaching;
-
   factory StaffWorkspaceView.fromJson(Map<String, dynamic> json) => StaffWorkspaceView(
     staffIdNo: json['staffIdNo'] as String,
     department: json['department'] as String?,
     employmentStatus: json['employmentStatus'] as String,
-    duties: (json['duties'] as List<dynamic>? ?? const [])
-        .map((item) => StaffDutyView.fromJson(item as Map<String, dynamic>))
-        .toList(growable: false),
-    teaching: (json['teaching'] as List<dynamic>? ?? const [])
-        .map((item) => TeachingAssignmentView.fromJson(item as Map<String, dynamic>))
-        .toList(growable: false),
+    duties: (json['duties'] as List<dynamic>? ?? const []).map((item) => StaffDutyView.fromJson(item as Map<String, dynamic>)).toList(growable: false),
+    teaching: (json['teaching'] as List<dynamic>? ?? const []).map((item) => TeachingAssignmentView.fromJson(item as Map<String, dynamic>)).toList(growable: false),
   );
 }
 
