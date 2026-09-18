@@ -1,1 +1,63 @@
-import 'package:flutter/material.dart';\nimport 'package:flutter_riverpod/flutter_riverpod.dart';\n\nimport '../../core/auth/auth_controller.dart';\nimport '../security/security_api.dart';\nimport '../security/security_page.dart';\nimport 'staff_models.dart';\nimport 'teacher_attendance_page.dart';\n\nfinal staffWorkspaceProvider = FutureProvider.autoDispose<StaffWorkspaceView>((ref) => ref.read(authApiProvider).staffWorkspace());\nfinal myPayrollProvider = FutureProvider.autoDispose<MyPayrollView>((ref) => ref.read(authApiProvider).myPayroll());\n\nclass StaffHomePage extends ConsumerWidget {\n  const StaffHomePage({super.key});\n\n  @override\n  Widget build(BuildContext context, WidgetRef ref) {\n    final user = ref.watch(authControllerProvider).value;\n    final workspace = ref.watch(staffWorkspaceProvider);\n    final payroll = ref.watch(myPayrollProvider);\n    final api = ref.read(authApiProvider);\n\n    return Scaffold(\n      appBar: AppBar(\n        title: const Text('BCI Staff Portal'),\n        actions: [\n          IconButton(tooltip: 'Account security', onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => SecurityPage(api: SecurityApi(api), authApi: api))), icon: const Icon(Icons.shield_outlined)),\n          IconButton(onPressed: () { ref.invalidate(staffWorkspaceProvider); ref.invalidate(myPayrollProvider); }, icon: const Icon(Icons.refresh)),\n          IconButton(onPressed: () => ref.read(authControllerProvider.notifier).signOut(), icon: const Icon(Icons.logout)),\n        ],\n      ),\n      body: RefreshIndicator(\n        onRefresh: () async { ref.invalidate(staffWorkspaceProvider); ref.invalidate(myPayrollProvider); },\n        child: ListView(\n          padding: const EdgeInsets.all(20),\n          children: [\n            Text('Welcome${user == null || user.firstName.isEmpty ? '' : ', ${user.firstName}'}', style: Theme.of(context).textTheme.headlineMedium),\n            const SizedBox(height: 8),\n            Text(user?.staff?.staffIdNo ?? 'Staff account'),\n            const SizedBox(height: 20),\n            workspace.when(\n              loading: () => const Card(child: Padding(padding: EdgeInsets.all(20), child: Center(child: CircularProgressIndicator()))),\n              error: (_, __) => const Card(child: ListTile(title: Text('Could not load staff workspace'), subtitle: Text('Pull down to retry the authoritative school record.'))),\n              data: (data) => Column(children: [\n                Card(child: ListTile(title: Text('Employment: ${data.employmentStatus}'), subtitle: Text('${data.department ?? 'School staff'} · ${data.staffIdNo}'))),\n                if (data.duties.isNotEmpty)\n                  Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [\n                    const Text('Duties'),\n                    const SizedBox(height: 8),\n                    ...data.duties.map((duty) => ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.assignment_outlined), title: Text(duty.description), subtitle: Text('${duty.startsAt?.toLocal() ?? 'No start'} → ${duty.endsAt?.toLocal() ?? 'Open'}'))),\n                  ]))),\n                if (data.teaching.isNotEmpty)\n                  Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [\n                    const Text('Teaching assignments'),\n                    const SizedBox(height: 8),\n                    ...data.teaching.map((assignment) => ListTile(\n                      contentPadding: EdgeInsets.zero,\n                      leading: const Icon(Icons.school_outlined),\n                      title: Text(assignment.className),\n                      subtitle: Text(assignment.subject + ' · ' + assignment.term),\n                      trailing: assignment.canMarkAttendance\n                          ? const Icon(Icons.fact_check_outlined)\n                          : const Chip(label: Text('Closed')),\n                      onTap: assignment.canMarkAttendance\n                          ? () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => TeacherAttendancePage(assignment: assignment)))\n                          : null,\n                    )),\n                    const SizedBox(height: 4),\n                    Text('Open a teaching assignment to mark its authoritative class attendance roster.', style: Theme.of(context).textTheme.bodySmall),\n                  ]))),\n              ]),\n            ),\n            const SizedBox(height: 12),\n            payroll.when(\n              loading: () => const Card(child: Padding(padding: EdgeInsets.all(20), child: Center(child: CircularProgressIndicator()))),\n              error: (_, __) => const Card(child: ListTile(title: Text('Payroll information unavailable'), subtitle: Text('Your account may not have payroll-read access yet.'))),\n              data: (data) => Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [\n                const Text('My payroll', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),\n                const SizedBox(height: 8),\n                if (data.basePay != null) Text('Current base pay: GHS ${data.basePay}'),\n                const SizedBox(height: 8),\n                ...data.entries.map((entry) => ListTile(contentPadding: EdgeInsets.zero, title: Text(entry.periodCode), subtitle: Text('${entry.periodStatus} · ${entry.status}'), trailing: Text('GHS ${entry.netPay}'))),\n                if (data.entries.isEmpty) const Text('No payroll entries have been issued yet.'),\n              ]))),\n          ],\n        ),\n      ),\n    );\n  }\n}
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../core/auth/auth_controller.dart';
+import '../security/security_api.dart';
+import '../security/security_page.dart';
+import 'staff_models.dart';
+import 'teacher_attendance_page.dart';
+
+final staffWorkspaceProvider = FutureProvider.autoDispose<StaffWorkspaceView>((ref) => ref.read(authApiProvider).staffWorkspace());
+final myPayrollProvider = FutureProvider.autoDispose<MyPayrollView>((ref) => ref.read(authApiProvider).myPayroll());
+
+class StaffHomePage extends ConsumerWidget {
+  const StaffHomePage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(authControllerProvider).value;
+    final workspace = ref.watch(staffWorkspaceProvider);
+    final payroll = ref.watch(myPayrollProvider);
+    final api = ref.read(authApiProvider);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('BCI Staff Portal'),
+        actions: [
+          IconButton(tooltip: 'Account security', onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => SecurityPage(api: SecurityApi(api), authApi: api))), icon: const Icon(Icons.shield_outlined)),
+          IconButton(onPressed: () { ref.invalidate(staffWorkspaceProvider); ref.invalidate(myPayrollProvider); }, icon: const Icon(Icons.refresh)),
+          IconButton(onPressed: () => ref.read(authControllerProvider.notifier).signOut(), icon: const Icon(Icons.logout)),
+        ],
+      ),
+      body: RefreshIndicator(
+        onRefresh: () async { ref.invalidate(staffWorkspaceProvider); ref.invalidate(myPayrollProvider); },
+        child: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            Text('Welcome${user == null || user.firstName.isEmpty ? '' : ', ${user.firstName}'}', style: Theme.of(context).textTheme.headlineMedium),
+            const SizedBox(height: 8), Text(user?.staff?.staffIdNo ?? 'Staff account'), const SizedBox(height: 20),
+            workspace.when(
+              loading: () => const Card(child: Padding(padding: EdgeInsets.all(20), child: Center(child: CircularProgressIndicator()))),
+              error: (_, __) => const Card(child: ListTile(title: Text('Could not load staff workspace'), subtitle: Text('Pull down to retry the authoritative school record.'))),
+              data: (data) => Column(children: [
+                Card(child: ListTile(title: Text('Employment: ${data.employmentStatus}'), subtitle: Text('${data.department ?? 'School staff'} · ${data.staffIdNo}'))),
+                if (data.duties.isNotEmpty) Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Duties'), const SizedBox(height: 8), ...data.duties.map((duty) => ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.assignment_outlined), title: Text(duty.description), subtitle: Text('${duty.startsAt?.toLocal() ?? 'No start'} → ${duty.endsAt?.toLocal() ?? 'Open'}')))]))),
+                if (data.teaching.isNotEmpty) Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Teaching assignments'), const SizedBox(height: 8), ...data.teaching.map((assignment) => ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.school_outlined), title: Text(assignment.className), subtitle: Text('${assignment.subject} · ${assignment.term}'), trailing: assignment.canMarkAttendance ? const Icon(Icons.fact_check_outlined) : const Chip(label: Text('Closed')), onTap: assignment.canMarkAttendance ? () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => TeacherAttendancePage(assignment: assignment))) : null))]))),
+              ]),
+            ),
+            const SizedBox(height: 12),
+            payroll.when(
+              loading: () => const Card(child: Padding(padding: EdgeInsets.all(20), child: Center(child: CircularProgressIndicator()))),
+              error: (_, __) => const Card(child: ListTile(title: Text('Payroll information unavailable'), subtitle: Text('Your account may not have payroll-read access yet.'))),
+              data: (data) => Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                const Text('My payroll', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)), const SizedBox(height: 8),
+                if (data.basePay != null) Text('Current base pay: GHS ${data.basePay}'), const SizedBox(height: 8),
+                ...data.entries.map((entry) => ListTile(contentPadding: EdgeInsets.zero, title: Text(entry.periodCode), subtitle: Text('${entry.periodStatus} · ${entry.status}'), trailing: Text('GHS ${entry.netPay}'))),
+                if (data.entries.isEmpty) const Text('No payroll entries have been issued yet.'),
+              ])))),
+          ],
+        ),
+      ),
+    );
+  }
+}
