@@ -139,6 +139,43 @@ class AuthApi {
     return WalletStatementView.fromJson(response.data as Map<String, dynamic>);
   }
 
+  Future<WalletTopUpView> initiateWalletTopUp({
+    required String studentId,
+    required String amount,
+    required String idempotencyKey,
+    String? network,
+  }) async {
+    final response = await _authorizedPostWithBodyAndHeaders(
+      '/wallets/students/' + Uri.encodeComponent(studentId) + '/top-up',
+      {
+        'amount': amount.trim(),
+        if (network != null && network.trim().isNotEmpty) 'network': network.trim(),
+      },
+      {'Idempotency-Key': idempotencyKey},
+    );
+    return WalletTopUpView.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<WalletTopUpView> submitWalletTopUpOtp({
+    required String studentId,
+    required String paymentId,
+    required String otpCode,
+    required String idempotencyKey,
+    String? network,
+    String? sessionId,
+  }) async {
+    final response = await _authorizedPostWithBodyAndHeaders(
+      '/finance/students/' + Uri.encodeComponent(studentId) + '/payments/' + Uri.encodeComponent(paymentId) + '/otp',
+      {
+        'otpCode': otpCode.trim(),
+        if (network != null && network.trim().isNotEmpty) 'network': network.trim(),
+        if (sessionId != null && sessionId.trim().isNotEmpty) 'sessionId': sessionId.trim(),
+      },
+      {'Idempotency-Key': idempotencyKey},
+    );
+    return WalletTopUpView.fromJson(response.data as Map<String, dynamic>);
+  }
+
   Future<PaymentPreflightView> paymentPreflight(String studentId, List<String> invoiceIds, {String? amount}) async {
     final response = await _authorizedPostWithBody('/finance/students/$studentId/payment-preflight', {'invoiceIds': invoiceIds, if (amount != null) 'amount': amount});
     return PaymentPreflightView.fromJson(response.data as Map<String, dynamic>);
@@ -234,6 +271,17 @@ class AuthApi {
 
   Future<Response<dynamic>> _authorizedPostWithBody(String path, Map<String, dynamic> data) => _authorizedRequest((token) =>
       _dio.post<dynamic>(path, data: data, options: Options(headers: {'Authorization': 'Bearer $token'})));
+
+  Future<Response<dynamic>> _authorizedPostWithBodyAndHeaders(
+    String path,
+    Map<String, dynamic> data,
+    Map<String, String> headers,
+  ) =>
+      _authorizedRequest((token) => _dio.post<dynamic>(
+            path,
+            data: data,
+            options: Options(headers: {'Authorization': 'Bearer $token', ...headers}),
+          ));
 
   Future<Response<dynamic>> _authorizedRequest(Future<Response<dynamic>> Function(String token) request) async {
     try {
