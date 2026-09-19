@@ -60,11 +60,11 @@ class _WardWalletPageState extends State<WardWalletPage> {
         network: _network,
         idempotencyKey: key,
       );
-      _topUpIdempotencyKey = null;
       if (!mounted) return;
       if (result.requiresOtp) {
         await _submitOtp(result);
       } else {
+        _topUpIdempotencyKey = null;
         _showTopUpResult(result);
       }
       _retry();
@@ -127,6 +127,7 @@ class _WardWalletPageState extends State<WardWalletPage> {
           idempotencyKey: _newIdempotencyKey('bci-wallet-otp'),
         );
         if (!mounted) return;
+        _topUpIdempotencyKey = null;
         _showTopUpResult(otpResult);
       } on DioException {
         if (!mounted) return;
