@@ -154,7 +154,9 @@ class _WardAcademicPageState extends State<WardAcademicPage> {
               ),
               const SizedBox(height: 12),
               Text(
-                report.grading.assigned ? 'Official grade assigned.' : report.grading.reason,
+                report.grading.assigned
+                    ? 'Official grade: ${report.grading.gradeCode ?? 'Assigned'}${report.grading.descriptor == null ? '' : ' · ${report.grading.descriptor}'}${report.grading.policyVersion == null ? '' : ' · Policy ${report.grading.policyVersion}'}'
+                    : report.grading.reason,
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ],

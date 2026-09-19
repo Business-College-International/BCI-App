@@ -105,12 +105,22 @@ class AcademicReportAssessment {
 }
 
 class AcademicReportGrading {
-  const AcademicReportGrading({required this.assigned, required this.reason});
+  const AcademicReportGrading({required this.assigned, required this.reason, this.policyVersion, this.gradeCode, this.descriptor, this.pass, this.points});
   final bool assigned;
   final String reason;
+  final String? policyVersion;
+  final String? gradeCode;
+  final String? descriptor;
+  final bool? pass;
+  final double? points;
 
   factory AcademicReportGrading.fromJson(Map<String, dynamic> json) => AcademicReportGrading(
-        assigned: json['assigned'] as bool,
-        reason: json['reason'] as String,
+        assigned: json['assigned'] as bool? ?? false,
+        reason: json['reason'] as String? ?? 'No official grade has been assigned.',
+        policyVersion: json['policyVersion'] as String?,
+        gradeCode: json['gradeCode'] as String?,
+        descriptor: json['descriptor'] as String?,
+        pass: json['pass'] as bool?,
+        points: (json['points'] as num?)?.toDouble(),
       );
 }
