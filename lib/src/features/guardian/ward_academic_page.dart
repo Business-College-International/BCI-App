@@ -18,18 +18,21 @@ class _WardAcademicPageState extends State<WardAcademicPage> {
   final _api = AuthApi();
   late Future<AcademicReportView> _report;
   late Future<AttendanceSummaryView> _attendance;
+  late Future<PublishedAcademicReportView?> _publishedReport;
 
   @override
   void initState() {
     super.initState();
     _report = _api.currentAcademicReport(widget.ward.id);
     _attendance = _api.studentAttendance(widget.ward.id);
+    _publishedReport = _report.then((report) => _api.currentPublishedAcademicReport(widget.ward.id, report.term.id));
   }
 
   void _retry() {
     setState(() {
       _report = _api.currentAcademicReport(widget.ward.id);
       _attendance = _api.studentAttendance(widget.ward.id);
+      _publishedReport = _report.then((report) => _api.currentPublishedAcademicReport(widget.ward.id, report.term.id));
     });
   }
 
@@ -122,6 +125,40 @@ class _WardAcademicPageState extends State<WardAcademicPage> {
                           const SizedBox(height: 6),
                           Text('Present: ${attendance.present} · Late: ${attendance.late} · Absent: ${attendance.absent} · Excused: ${attendance.excused}'),
                           if (risk) const Padding(padding: EdgeInsets.only(top: 8), child: Text('Absence is at or above 20% of marked sessions.')),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              FutureBuilder<PublishedAcademicReportView?>(
+                future: _publishedReport,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState != ConnectionState.done || snapshot.data == null) {
+                    return const SizedBox.shrink();
+                  }
+                  final published = snapshot.data!;
+                  return Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(18),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Expanded(child: Text('Official published report', style: TextStyle(fontWeight: FontWeight.bold))),
+                              Chip(label: Text('Version ${published.publicationVersion}')),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text('Status: ${published.status}'),
+                          if (published.publishedAt != null) Text('Published: ${published.publishedAt!.toLocal()}'),
+                          if (published.gradingPolicyVersionId != null) Text('Grading policy: ${published.gradingPolicyVersionId}'),
+                          const SizedBox(height: 6),
+                          Text('Snapshot hash: ${published.snapshotHash}', style: Theme.of(context).textTheme.bodySmall),
+                          const SizedBox(height: 8),
+                          const Text('This is the immutable school-published snapshot for this term.'),
                         ],
                       ),
                     ),

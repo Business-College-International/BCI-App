@@ -118,6 +118,16 @@ class AuthApi {
     return AcademicReportView.fromJson(response.data as Map<String, dynamic>);
   }
 
+  Future<PublishedAcademicReportView?> currentPublishedAcademicReport(String studentId, String termId) async {
+    try {
+      final response = await _authorizedGet('/academic-reports/students/$studentId/terms/$termId/publications/current');
+      return PublishedAcademicReportView.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (error) {
+      if (error.response?.statusCode == 404) return null;
+      rethrow;
+    }
+  }
+
   Future<AttendanceSummaryView> studentAttendance(String studentId, {String? termId}) async {
     final path = '/attendance/students/$studentId${termId == null ? '' : '?termId=${Uri.encodeQueryComponent(termId)}'}';
     final response = await _authorizedGet(path);

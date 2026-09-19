@@ -124,3 +124,38 @@ class AcademicReportGrading {
         points: (json['points'] as num?)?.toDouble(),
       );
 }
+class PublishedAcademicReportView {
+  const PublishedAcademicReportView({
+    required this.id,
+    required this.status,
+    required this.publicationVersion,
+    required this.snapshotHash,
+    required this.gradingPolicyVersionId,
+    required this.publishedAt,
+    required this.snapshot,
+  });
+
+  final String id;
+  final String status;
+  final int publicationVersion;
+  final String snapshotHash;
+  final String? gradingPolicyVersionId;
+  final DateTime? publishedAt;
+  final AcademicReportView snapshot;
+
+  factory PublishedAcademicReportView.fromJson(Map<String, dynamic> json) {
+    final rawSnapshot = json['snapshotJson'];
+    if (rawSnapshot is! Map<String, dynamic>) {
+      throw const FormatException('Published report snapshot is missing.');
+    }
+    return PublishedAcademicReportView(
+      id: json['id'] as String,
+      status: json['status'] as String,
+      publicationVersion: (json['publicationVersion'] as num).toInt(),
+      snapshotHash: json['snapshotHash'] as String,
+      gradingPolicyVersionId: json['gradingPolicyVersionId'] as String?,
+      publishedAt: json['publishedAt'] == null ? null : DateTime.parse(json['publishedAt'] as String),
+      snapshot: AcademicReportView.fromJson(rawSnapshot),
+    );
+  }
+}
