@@ -45,11 +45,13 @@ class AcademicReportStudent {
 }
 
 class AcademicReportTerm {
-  const AcademicReportTerm({required this.code, required this.name});
+  const AcademicReportTerm({this.id, required this.code, required this.name});
+  final String? id;
   final String code;
   final String name;
 
   factory AcademicReportTerm.fromJson(Map<String, dynamic> json) => AcademicReportTerm(
+        id: json['id'] as String?,
         code: json['code'] as String,
         name: json['name'] as String,
       );

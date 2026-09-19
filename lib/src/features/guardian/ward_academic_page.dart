@@ -25,14 +25,14 @@ class _WardAcademicPageState extends State<WardAcademicPage> {
     super.initState();
     _report = _api.currentAcademicReport(widget.ward.id);
     _attendance = _api.studentAttendance(widget.ward.id);
-    _publishedReport = _report.then((report) => _api.currentPublishedAcademicReport(widget.ward.id, report.term.id));
+    _publishedReport = _report.then((report) => report.term.id == null ? null : _api.currentPublishedAcademicReport(widget.ward.id, report.term.id!));
   }
 
   void _retry() {
     setState(() {
       _report = _api.currentAcademicReport(widget.ward.id);
       _attendance = _api.studentAttendance(widget.ward.id);
-      _publishedReport = _report.then((report) => _api.currentPublishedAcademicReport(widget.ward.id, report.term.id));
+      _publishedReport = _report.then((report) => report.term.id == null ? null : _api.currentPublishedAcademicReport(widget.ward.id, report.term.id!));
     });
   }
 
