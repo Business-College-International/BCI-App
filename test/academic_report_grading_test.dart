@@ -21,7 +21,6 @@ void main() {
     expect(grading.pass, isTrue);
     expect(grading.points, 4);
   });
-}
 
   test('parses an immutable published report snapshot', () {
     final published = PublishedAcademicReportView.fromJson({
@@ -32,9 +31,20 @@ void main() {
       'gradingPolicyVersionId': 'policy-1',
       'publishedAt': '2026-01-10T12:00:00.000Z',
       'snapshotJson': {
-        'student': {'firstName': 'Ama', 'lastName': 'Mensah', 'admissionNumber': 'BCI-1'},
-        'term': {'id': 'term-1', 'code': 'T1', 'name': 'Term 1'},
-        'calculation': {'overallPercentage': 82, 'mode': 'WEIGHTED'},
+        'student': {
+          'firstName': 'Ama',
+          'lastName': 'Mensah',
+          'admissionNumber': 'BCI-1',
+        },
+        'term': {
+          'id': 'term-1',
+          'code': 'T1',
+          'name': 'Term 1',
+        },
+        'calculation': {
+          'overallPercentage': 82,
+          'mode': 'WEIGHTED',
+        },
         'subjects': [],
         'assessments': [],
         'grading': {
