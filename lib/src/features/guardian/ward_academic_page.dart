@@ -24,14 +24,14 @@ class _WardAcademicPageState extends State<WardAcademicPage> {
   void initState() {
     super.initState();
     _report = _api.currentAcademicReport(widget.ward.id);
-    _attendance = _api.studentAttendance(widget.ward.id);
+    _attendance = _report.then((report) => _api.studentAttendance(widget.ward.id, termId: report.term.id));
     _publishedReport = _report.then((report) => report.term.id == null ? null : _api.currentPublishedAcademicReport(widget.ward.id, report.term.id!));
   }
 
   void _retry() {
     setState(() {
       _report = _api.currentAcademicReport(widget.ward.id);
-      _attendance = _api.studentAttendance(widget.ward.id);
+      _attendance = _report.then((report) => _api.studentAttendance(widget.ward.id, termId: report.term.id));
       _publishedReport = _report.then((report) => report.term.id == null ? null : _api.currentPublishedAcademicReport(widget.ward.id, report.term.id!));
     });
   }
@@ -116,7 +116,7 @@ class _WardAcademicPageState extends State<WardAcademicPage> {
                         children: [
                           Row(
                             children: [
-                              const Expanded(child: Text('Attendance', style: TextStyle(fontWeight: FontWeight.bold))),
+                              const Expanded(child: Text('Current-term attendance', style: TextStyle(fontWeight: FontWeight.bold))),
                               if (risk) const Chip(label: Text('Monitor attendance')),
                             ],
                           ),
