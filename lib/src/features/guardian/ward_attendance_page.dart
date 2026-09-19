@@ -104,9 +104,9 @@ class _WardAttendancePageState extends State<WardAttendancePage> {
                     leading: CircleAvatar(child: Icon(_statusIcon(session.status))),
                     title: Text(session.subjectName ?? 'General attendance'),
                     subtitle: Text(
-                      _formatDate(session.sessionDate)
-                      '${session.periodLabel == null || session.periodLabel!.trim().isEmpty ? '' : ' · ${session.periodLabel}'}'
-                      '${session.note == null || session.note!.trim().isEmpty ? '' : '\n${session.note}'}',
+                      _formatDate(session.sessionDate) +
+                          (session.periodLabel == null || session.periodLabel!.trim().isEmpty ? '' : ' · ${session.periodLabel}') +
+                          (session.note == null || session.note!.trim().isEmpty ? '' : '\n${session.note}'),
                     ),
                     isThreeLine: session.note != null && session.note!.trim().isNotEmpty,
                     trailing: Chip(label: Text(_statusLabel(session.status))),
