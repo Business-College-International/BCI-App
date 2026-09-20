@@ -46,4 +46,51 @@ void main() {
     expect(result.remark, 'Good work');
     expect(result.enteredAt.toUtc(), DateTime.utc(2026, 9, 18, 6));
   });
+
+  test('parses an assigned assessment with existing results', () {
+    final assessment = AssignedAssessmentView.fromJson({
+      'id': 'assessment-1',
+      'title': 'Mid-term test',
+      'type': 'TEST',
+      'maxScore': '50.00',
+      'weight': '100.00',
+      'createdAt': '2026-09-20T08:00:00.000Z',
+      'results': [
+        {
+          'id': 'result-1',
+          'studentId': 'student-1',
+          'score': '44.00',
+          'remark': 'Corrected',
+          'enteredAt': '2026-09-20T08:30:00.000Z',
+          'enteredBy': 'teacher-1',
+        },
+      ],
+    });
+
+    expect(assessment.id, 'assessment-1');
+    expect(assessment.maxScore, '50.00');
+    expect(assessment.results, hasLength(1));
+    expect(assessment.results.first.score, '44.00');
+    expect(assessment.results.first.remark, 'Corrected');
+  });
+
+  test('parses report-card correction lifecycle state', () {
+    final correction = ReportCardCorrectionView.fromJson({
+      'id': 'corr-1',
+      'studentId': 'student-1',
+      'termId': 'term-1',
+      'targetPublicationId': 'pub-1',
+      'decision': 'PENDING',
+      'reason': 'Corrected test result',
+      'requestedAt': '2026-09-20T09:00:00.000Z',
+      'decidedAt': null,
+      'decisionNote': null,
+      'approvedPublicationId': null,
+    });
+
+    expect(correction.decision, 'PENDING');
+    expect(correction.reason, 'Corrected test result');
+    expect(correction.decidedAt, isNull);
+  });
+
 }
