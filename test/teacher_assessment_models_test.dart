@@ -69,7 +69,7 @@ void main() {
 
     expect(assessment.id, 'assessment-1');
     expect(assessment.maxScore, '50.00');
-    expect(assessment.results).hasLength(1);
+    expect(assessment.results, hasLength(1));
     expect(assessment.results.first.score, '44.00');
     expect(assessment.results.first.remark, 'Corrected');
   });
