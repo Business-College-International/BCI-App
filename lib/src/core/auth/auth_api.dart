@@ -226,6 +226,47 @@ class AuthApi {
         .toList(growable: false);
   }
 
+  Future<List<AssignedAssessmentView>> assignedAssessments({
+    required String classId,
+    required String termId,
+    required String subjectId,
+  }) async {
+    final response = await _authorizedGet(
+      '/assessments/assigned?classId=' + Uri.encodeQueryComponent(classId) +
+          '&termId=' + Uri.encodeQueryComponent(termId) +
+          '&subjectId=' + Uri.encodeQueryComponent(subjectId),
+    );
+    return (response.data as List<dynamic>)
+        .map((item) => AssignedAssessmentView.fromJson(item as Map<String, dynamic>))
+        .toList(growable: false);
+  }
+
+  Future<ReportCardCorrectionView> requestReportCardCorrection({
+    required String studentId,
+    required String termId,
+    required String reason,
+  }) async {
+    final response = await _authorizedPostWithBody(
+      '/academic-reports/students/' + Uri.encodeComponent(studentId) +
+          '/terms/' + Uri.encodeComponent(termId) + '/corrections',
+      {'reason': reason.trim()},
+    );
+    return ReportCardCorrectionView.fromJson(response.data as Map<String, dynamic>);
+  }
+
+  Future<List<ReportCardCorrectionView>> reportCardCorrections({
+    required String studentId,
+    required String termId,
+  }) async {
+    final response = await _authorizedGet(
+      '/academic-reports/students/' + Uri.encodeComponent(studentId) +
+          '/terms/' + Uri.encodeComponent(termId) + '/corrections',
+    );
+    return (response.data as List<dynamic>)
+        .map((item) => ReportCardCorrectionView.fromJson(item as Map<String, dynamic>))
+        .toList(growable: false);
+  }
+
   Future<CreatedAssessmentView> createAssessment({
     required String termId,
     required String subjectId,
