@@ -66,6 +66,81 @@ class CreatedAssessmentView {
   }
 }
 
+class AssignedAssessmentView {
+  const AssignedAssessmentView({
+    required this.id,
+    required this.title,
+    required this.type,
+    required this.maxScore,
+    required this.weight,
+    required this.createdAt,
+    required this.results,
+  });
+
+  final String id;
+  final String title;
+  final String type;
+  final String maxScore;
+  final String? weight;
+  final DateTime createdAt;
+  final List<AssessmentResultView> results;
+
+  factory AssignedAssessmentView.fromJson(Map<String, dynamic> json) {
+    return AssignedAssessmentView(
+      id: json['id'] as String,
+      title: json['title'] as String,
+      type: json['type'] as String,
+      maxScore: json['maxScore'].toString(),
+      weight: json['weight']?.toString(),
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      results: (json['results'] as List<dynamic>? ?? const [])
+          .map((item) => AssessmentResultView.fromJson(item as Map<String, dynamic>))
+          .toList(growable: false),
+    );
+  }
+}
+
+class ReportCardCorrectionView {
+  const ReportCardCorrectionView({
+    required this.id,
+    required this.studentId,
+    required this.termId,
+    required this.targetPublicationId,
+    required this.decision,
+    required this.reason,
+    required this.requestedAt,
+    this.decidedAt,
+    this.decisionNote,
+    this.approvedPublicationId,
+  });
+
+  final String id;
+  final String studentId;
+  final String termId;
+  final String targetPublicationId;
+  final String decision;
+  final String reason;
+  final DateTime requestedAt;
+  final DateTime? decidedAt;
+  final String? decisionNote;
+  final String? approvedPublicationId;
+
+  factory ReportCardCorrectionView.fromJson(Map<String, dynamic> json) {
+    return ReportCardCorrectionView(
+      id: json['id'] as String,
+      studentId: json['studentId'] as String,
+      termId: json['termId'] as String,
+      targetPublicationId: json['targetPublicationId'] as String,
+      decision: json['decision'] as String,
+      reason: json['reason'] as String,
+      requestedAt: DateTime.parse(json['requestedAt'] as String),
+      decidedAt: json['decidedAt'] == null ? null : DateTime.parse(json['decidedAt'] as String),
+      decisionNote: json['decisionNote'] as String?,
+      approvedPublicationId: json['approvedPublicationId'] as String?,
+    );
+  }
+}
+
 class AssessmentResultView {
   const AssessmentResultView({
     required this.id,
